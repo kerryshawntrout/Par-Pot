@@ -251,7 +251,7 @@
         <div class="toggle-row">
           <span>1. Scoring Zone in Reg.</span>
           <div class="action-controls">
-            <input type="number" id="num-sz-strokes" class="number-input" value="2" min="1" title="Strokes to SZ">
+            <input type="number" id="num-sz-strokes" class="number-input" value="2" min="1" title="Strokes to SZ" onfocus="this.select()">
             <button id="btn-sz" class="toggle-btn" onclick="toggleStat('sz')">✕</button>
           </div>
         </div>
@@ -259,7 +259,7 @@
         <div class="toggle-row">
           <span>2. Up & Down in 3 (from SZ)</span>
           <div class="action-controls">
-            <input type="number" id="num-sz-green-strokes" class="number-input" value="1" min="1" title="Strokes SZ to Green">
+            <input type="number" id="num-sz-green-strokes" class="number-input" value="1" min="1" title="Strokes SZ to Green" onfocus="this.select()">
             <button id="btn-ud" class="toggle-btn" onclick="toggleStat('ud')">✕</button>
           </div>
         </div>
@@ -273,22 +273,22 @@
 
         <div class="number-row">
           <span>4. 1st Putt Dist. (Paces)</span>
-          <input type="number" id="num-putt-dist" class="number-input" value="8" min="0">
+          <input type="number" id="num-putt-dist" class="number-input" value="8" min="0" onfocus="this.select()">
         </div>
 
         <div class="number-row">
           <span>5. Total Putts</span>
-          <input type="number" id="num-putts" class="number-input" value="2" min="0">
+          <input type="number" id="num-putts" class="number-input" value="2" min="0" onfocus="this.select()">
         </div>
 
         <div class="number-row">
           <span>6. Penalty Strokes</span>
-          <input type="number" id="num-penalties" class="number-input" value="0" min="0">
+          <input type="number" id="num-penalties" class="number-input" value="0" min="0" onfocus="this.select()">
         </div>
 
         <div class="number-row">
           <span>7. Hole Score</span>
-          <input type="number" id="num-score" class="number-input" value="4" min="1">
+          <input type="number" id="num-score" class="number-input" value="4" min="1" onfocus="this.select()">
         </div>
       </div>
 
@@ -684,9 +684,17 @@
     updatePracticePlan();
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js')
-        .then(() => console.log('Service Worker Registered'))
-        .catch((err) => console.log('SW Registration Failed:', err));
+      navigator.serviceWorker.register('service-worker.js').then((registration) => {
+        registration.update();
+      });
+
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) {
+          refreshing = true;
+          window.location.reload();
+        }
+      });
     }
   </script>
 </body>
