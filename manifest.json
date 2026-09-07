@@ -1,9 +1,14 @@
 {
-  "short_name": "BB Golf",
-  "name": "Brilliantly Boring Golf",
+  "short_name": "ParPotentiometer",
+  "name": "Par Potentiometer - Golf Performance Tracker",
   "icons": [
     {
       "src": "./golfer.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2991/2991201.png",
       "type": "image/png",
       "sizes": "512x512"
     }
@@ -12,5 +17,7 @@
   "background_color": "#121a14",
   "theme_color": "#121a14",
   "display": "standalone",
-  "orientation": "portrait"
+  "orientation": "portrait",
+  "scope": "./",
+  "description": "Golf performance tracking and Ring of Possibility strategy app."
 }

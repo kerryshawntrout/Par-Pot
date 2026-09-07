@@ -1,33 +1,61 @@
-const CACHE_NAME = 'bb-golf-v6';
-const ASSETS = [
+const CACHE_NAME = 'par-potentiometer-v1';
+const ASSETS_TO_CACHE = [
+  './',
   './index.html',
   './manifest.json',
-  './golfer.png'
+  'https://images.unsplash.com/photo-1535131749006-b7f58c99034b?auto=format&fit=crop&w=800&q=80',
+  'https://cdn-icons-png.flaticon.com/512/2991/2991201.png'
 ];
 
+// Install Event: Cache essential assets
 self.addEventListener('install', (event) => {
-  self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(ASSETS_TO_CACHE);
+    }).then(() => self.skipWaiting())
   );
 });
 
+// Activate Event: Clean up old caches if CACHE_NAME changes
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) => {
+    caches.keys().then((cacheNames) => {
       return Promise.all(
-        keys.map((key) => {
-          if (key !== CACHE_NAME) {
-            return caches.delete(key);
+        cacheNames.map((cache) => {
+          if (cache !== CACHE_NAME) {
+            return caches.delete(cache);
           }
         })
       );
-    })
+    }).then(() => self.clients.claim())
   );
 });
 
+// Fetch Event: Cache-First strategy with Network Fallback
 self.addEventListener('fetch', (event) => {
   event.respondWith(
-    caches.match(event.request).then((response) => response || fetch(event.request))
+    caches.match(event.request).then((cachedResponse) => {
+      if (cachedResponse) {
+        return cachedResponse;
+      }
+      return fetch(event.request).then((networkResponse) => {
+        // Cache external image assets as they are fetched dynamically
+        if (
+          event.request.url.includes('images.unsplash.com') || 
+          event.request.url.includes('cdn-icons-png.flaticon.com')
+        ) {
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
+        }
+        return networkResponse;
+      });
+    }).catch(() => {
+      // Fallback for document navigation if offline
+      if (event.request.mode === 'navigate') {
+        return caches.match('./index.html');
+      }
+    })
   );
 });
